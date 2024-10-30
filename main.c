@@ -1,9 +1,10 @@
 #include <math.h>
 #include <stdio.h>
 #include <stddef.h>
+#include <stdlib.h>
 
 int
-solve (int lastdigit, int wantednum, int p[2])
+solve (int lastdigit, int wantednum, int (*p)[2])
 {
   printf ("[Solve Func]Lastdigit: %d, Wantednum: %d\n", lastdigit, wantednum);
   int test = 0;
@@ -21,29 +22,23 @@ solve (int lastdigit, int wantednum, int p[2])
   }
   int nowdigit = lasttest;
   printf ("nowdigit: %d\n", nowdigit);
-  p[0] = nowdigit;
-  p[1] = wantednum - (20 * lastdigit * nowdigit + pow (nowdigit, 2));
-  printf ("[solve func]editing nowdigit to be %d and remain to be %d\n", p[0], p[1]);
+  *p[0] = nowdigit;
+  *p[1] = wantednum - (20 * lastdigit * nowdigit + pow (nowdigit, 2));
+  printf ("[solve func]editing nowdigit to be %d and remain to be %d\n", *p[0], *p[1]);
   return 1;
 }
 
 int
-main (void)
+main (int argc, char *argv[])
 {
   int ans = 0;
   int num = 0;
   int numlen = 0;
   puts ("Please input the number and how many digits it has you want:");
   scanf ("%d %d", &num, &numlen);
-  
-  /*if (numlen % 2 == 0)
-  {
-    int poolsize = numlen / 2;
-  }
-  else
-  {
-    int poolsize = numlen / 2 + 1;
-  }*/
+  int tweatdigits = (argc > 1) ? atoi(argv[1]) : 0;
+  num = num * pow (10, tweatdigits);
+  numlen = numlen + tweatdigits;
   int needtweat = (numlen % 2 == 1);
   if (needtweat)
   {
@@ -62,6 +57,7 @@ main (void)
   {
     int tempmod = pow (10, remainednums);
     pool[index] = fakenum / tempmod;
+    if ((index > 0) && (pool[index] == 0)) pool[index] = 100;
     printf ("we apply %d to pool[%d]\n", pool[index], index);
     fakenum = fakenum % tempmod;
     remainednums = remainednums - 2;
@@ -77,7 +73,9 @@ main (void)
     int wantednum = 100 * remain + pool[counter];
     printf ("The wantednum is %d now.\n", wantednum);
     int tempholder[2];
-    solve (lastdigit, wantednum, tempholder);
+    tempholder[0] = 0;
+    tempholder[1] = 0;
+    solve (lastdigit, wantednum, &tempholder);
     int nowdigit = tempholder[0];
     remain = tempholder[1];
     ans = ans * 10 + nowdigit;
@@ -85,7 +83,11 @@ main (void)
     counter++;
   }
   
-  printf ("For %d, My answer is: %d\n", num, ans);
+  float num1 = num;
+  num1 = num1 / (10 * tweatdigits);
+  float ans1 = ans;
+  ans1 = ans1 / (10 * (tweatdigits / 2));
+  printf ("For %f, My answer is: %f\n", num1, ans1);
   
   return 0;
 }
